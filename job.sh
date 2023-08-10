@@ -15,4 +15,4 @@
 source /private/home/yijunq/anaconda3/bin/activate
 conda activate temos
 cd /private/home/yijunq/repos/t2motion
-python train.py data=babelsync-ems-mul-amass-rot run_id=iccv_submission model.if_weighted=true data.batch_size=8 model=ems model.if_humor=true model.if_bigen=false data.if_llm_aug=false model.if_uniq=false model.optim.lr=5.0e-05 model.latent_dim=256 model.losses.lmd_text2rfeats_recons=1.0 model.if_contrast=true model.if_physics=false init_weight=/private/home/yijunq/repos/text2motion/outputs/babelmae-mul-amass-rot/baseline/28nlfcfh-10-200-tmae-maskout/checkpoints/last.ckpt
+python train.py data=babelsync-ems-mul-amass-rot run_id=iccv_submission model.if_weighted=true data.batch_size=8 model=ems model.if_humor=true model.if_bigen=false data.if_llm_aug=false model.if_uniq=false model.optim.lr=5.0e-05 model.latent_dim=256 model.losses.lmd_text2rfeats_recons=1.0 model.if_contrast=true model.if_physics=false init_weight=/private/home/yijunq/repos/t2motion/outputs/humor.pt

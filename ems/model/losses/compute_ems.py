@@ -192,7 +192,7 @@ class EMSComputeLosses(Module):
         getattr(self, loss).__iadd__(val.detach())
         # Return a weighted sum
         weighted_loss = self._params[loss] * val
-        print(loss,weighted_loss)
+        # print(loss,weighted_loss)
         return weighted_loss
 
     def loss2logname(self, loss: str, split: str):
