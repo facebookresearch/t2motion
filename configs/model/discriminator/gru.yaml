@@ -1,0 +1,12 @@
+name: gru
+_target_: ems.model.discriminator.gru.MotionDiscriminator
+
+latent_dim: ${model.latent_dim}
+vae: false
+
+ff_size: ${model.ff_size}
+num_layers: ${model.num_layers}
+num_head: ${model.num_head}
+droupout: ${model.droupout}
+activation: ${model.activation}
+num_classes: 53

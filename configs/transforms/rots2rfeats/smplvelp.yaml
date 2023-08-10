@@ -1,0 +1,9 @@
+name: SMPLVelP
+_target_: ems.transforms.rots2rfeats.SMPLVelP
+
+pose_rep: rot6d
+path: ${path.deps}/transforms/rots2rfeats/smplvelp/${.pose_rep}/${data.dataname}
+
+canonicalize: true
+normalization: true
+rotation: false

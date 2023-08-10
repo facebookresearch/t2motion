@@ -1,0 +1,11 @@
+_target_: ems.model.losses.CLFTemosComputeLosses
+
+mode: ${transforms.ename}
+
+# Loss terms
+## Classification Losses
+lmd_m_clf: 1.0
+
+# Motion Features Classification
+clf_motion: ${.lmd_m_clf}
+clf_motion_func: ${model.func_clf}

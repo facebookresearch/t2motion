@@ -1,0 +1,41 @@
+dataname: babelsync-clf-amass-rot
+_target_: ems.data.babelsync_clf.BABELDataModule
+
+# Paths
+datapath: ${path.datasets}/babelsync-ems
+splitpath: ${path.datasets}/babelsync-clf-splits
+
+# Amass
+load_amass_data: true
+load_with_rot: true
+correspondance_path: ${path.datasets}/babelsync-ems-mul-clf_amass_path.json
+amass_path: ${path.datasets}/AMASS
+smplh_path: ${path.deps}/smplh
+
+# Text
+pick_one_text: true
+
+# Machine
+batch_size: 8
+num_workers: 8
+
+# Motion
+framerate: 12.5
+sampler: ${sampler}
+defaults:
+  - /transforms/smpl.yaml@transforms
+
+# Other
+tiny: false
+progress_bar: true
+add_noise: false
+noise_std: 0.05
+num_classes: 53
+if_mask: false
+if_llm_aug: false
+if_weighted: ${model.if_weighted}
+if_contrast: ${model.if_contrast}
+mask_ratio: 1.0
+s_mask_ratio: 0.7
+temporal_window: 3
+nfeats: 135

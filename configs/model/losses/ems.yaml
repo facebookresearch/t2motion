@@ -1,0 +1,110 @@
+_target_: ems.model.losses.EMSComputeLosses
+
+mode: ${transforms.ename}
+
+# Loss terms
+## Reconstruction losses
+lmd_text2rfeats_recons: 2.0
+lmd_rfeats_recons: 1.0
+lmd_text_recons: 1.0
+lmd_jfeats_recons: 1.0
+lmd_connect_recons: 1.0
+lmd_clf: 4.0
+
+## Latent spaces losses
+lmd_latent: 1.0e-5
+lmd_kl: 1.0e-5
+
+## contrastive losses
+lmd_text_contrast: 1.0e-3
+lmd_motion_contrast: 1.0e-3
+
+## Physical Losses
+lmd_footskate: 1.0e-4
+
+# Ablations
+loss_on_both: true
+
+force_loss_on_jfeats: false
+ablation_no_kl_combine: false
+ablation_no_kl_gaussian: false
+ablation_no_motionencoder: false
+discriminator: ${model.if_discriminator}
+bigen: ${model.if_bigen}
+humor: ${model.if_humor}
+contrast: ${model.if_contrast}
+fskate: ${model.if_physics}
+
+# Late => rfeats (prev features)
+recons_connect2connect: ${.lmd_connect_recons}
+recons_connect2connect_func: ${model.func_recons}
+
+# Text => rfeats (rotation features)
+recons_text2rfeats: ${.lmd_text2rfeats_recons}
+recons_text2rfeats_func: ${model.func_recons}
+
+# Text => Humor
+recons_text2humor: ${.lmd_rfeats_recons}
+recons_text2humor_func: ${model.func_recons}
+
+# Text => jfeats (xyz features)
+recons_text2jfeats: ${.lmd_jfeats_recons}
+recons_text2jfeats_func: ${model.func_recons}
+
+# rfeats => rfeats
+recons_rfeats2rfeats: ${.lmd_rfeats_recons}
+recons_rfeats2rfeats_func: ${model.func_recons}
+
+# text => text
+recons_text2text: ${.lmd_text_recons}
+recons_text2text_func: ${model.func_recons}
+
+# rfeats => text
+recons_rfeats2text: ${.lmd_text_recons}
+recons_rfeats2text_func: ${model.func_recons}
+
+# jfeats => jfeats
+recons_jfeats2jfeats: ${.lmd_jfeats_recons}
+recons_jfeats2jfeats_func: ${model.func_recons}
+
+# Latent space losses
+latent_manifold: ${.lmd_latent}
+latent_manifold_func: ${model.func_latent}
+latent_humor: ${.lmd_latent}
+latent_humor_func: ${model.func_latent}
+
+# VAE losses
+kl_connect: ${.lmd_kl}
+kl_connect_func: ${model.func_kl}
+
+kl_text: ${.lmd_kl}
+kl_text_func: ${model.func_kl}
+
+kl_motion: ${.lmd_kl}
+kl_motion_func: ${model.func_kl}
+
+kl_text2motion: ${.lmd_kl}
+kl_text2motion_func: ${model.func_kl}
+
+kl_motion2text: ${.lmd_kl}
+kl_motion2text_func: ${model.func_kl}
+
+kl_text2humor: ${.lmd_kl}
+kl_text2humor_func: ${model.func_kl}
+
+# CLF losses
+gt_clf: ${.lmd_clf}
+gt_clf_func: ${model.func_clf}
+
+pred_clf: ${.lmd_clf}
+pred_clf_func: ${model.func_clf}
+
+# Contrast Losses
+text_contrast: ${.lmd_text_contrast}
+text_contrast_func: ${model.func_contrast}
+motion_contrast: ${.lmd_motion_contrast}
+motion_contrast_func: ${model.func_contrast}
+
+#Physical Losses
+footskate: ${.lmd_footskate}
+footskate_func: ${model.func_footskate}

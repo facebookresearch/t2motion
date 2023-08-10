@@ -1,0 +1,37 @@
+modelname: ems
+_target_: ems.model.ems.EMS
+latent_dim: 256
+text_emb_size: 768
+vae: true
+
+transforms: ${transforms}
+
+ff_size: 1024
+num_layers: 6
+num_head: ${model.num_layers}
+droupout: 0.1
+activation: "gelu"
+if_mask: false
+temporal_window: 3
+if_discriminator: false
+if_bigen: false
+if_humor: false
+if_uniq: false
+if_weighted: false
+if_contrast: false
+if_physics: false
+
+defaults:
+  - textencoder: atom
+  - textdecoder: actor
+  - motionencoder: atom
+  - motiondecoder: actor
+  - discriminator: atom
+  - losses: ems
+  - optim: adamw
+  - /model/losses/function/smoothL1@func_recons
+  - /model/losses/function/smoothL1@func_latent
+  - /model/losses/function/kl@func_kl
+  - /model/losses/function/bclf@func_clf
+  - /model/losses/function/contrast@func_contrast
+  - /model/losses/function/footskate@func_footskate
