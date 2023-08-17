@@ -9,9 +9,9 @@ logger_level: INFO
 folder: ???
 
 data:
-  splitpath: ${path.datasets}/eval_splits
+  splitpath: ${path.datasets}/babelsync-ems-mul-splits
   
-split: gtest
+split: extract
 
 mean: false
 number_of_samples: 1

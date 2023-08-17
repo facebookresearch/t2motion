@@ -10,7 +10,7 @@ class ContrastLoss:
         q = F.normalize(q, p=2, dim=1)
         p = F.normalize(p, p=2, dim=1)
         cos = F.cosine_similarity(p,q,dim=1)
-        return (1-cos).mean()
+        return cos.mean()
 
     def __repr__(self):
         return "ContrastLoss()"
