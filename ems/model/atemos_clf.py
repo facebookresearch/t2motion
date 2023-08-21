@@ -18,10 +18,8 @@ from ems.data.tools import collate_tensor_with_padding,mask_to_lengths
 import torch.nn.functional as F
 
 
-class TEMOS(BaseModel):
-    def __init__(self, textencoder: DictConfig,
-                 motionencoder: DictConfig,
-                 motiondecoder: DictConfig,
+class TEMOSCLF(BaseModel):
+    def __init__(self,
                  losses: DictConfig,
                  optim: DictConfig,
                  transforms: DictConfig,
@@ -29,25 +27,10 @@ class TEMOS(BaseModel):
                  vae: bool,
                  latent_dim: int,
                  discriminator: DictConfig = None,
-                 textdecoder: DictConfig = None,
-                 uniqdecoder: DictConfig = None,
-                 temporal_window: int = 3,
-                 text_emb_size: int = 768,
-                 if_mask: bool = False,
-                 if_discriminator: bool = False,
-                 if_bigen: bool = False,
-                 if_humor: bool = False,
-                 if_uniq: bool = False,
-                 if_weighted: bool = False,
-                 if_contrast: bool = False,
-                 if_physics: bool = False,
                  if_clf: bool = True,
-                 clfencoder: DictConfig = None,
                  num_classes: int = 235,
                  **kwargs):
         super().__init__()
-        self.if_discriminator = if_discriminator
-        assert self.if_discriminator
         self.num_classes = num_classes
         self.discriminator = instantiate(discriminator, nfeats=nfeats)
         self.if_clf = if_clf

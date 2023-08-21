@@ -312,7 +312,6 @@ def sample(newcfg: DictConfig) -> None:
     print("jointstype {}".format(cfg.jointstype))
     CMetrics = ComputeMetrics(force_in_meter=force_in_meter)
     import torch
-    feat_save_dir = "/checkpoint/yijunq/release_feats"
     with torch.no_grad():
         with Progress(transient=True) as progress:
             task = progress.add_task("Sampling", total=len(dataset.keyids))
@@ -329,7 +328,7 @@ def sample(newcfg: DictConfig) -> None:
                         connect_features = connect_features[:,model.temporal_window:]
                     if batch["next_text"][0] != -1:
                         connect_features = connect_features[:,:-model.temporal_window]
-                    torch.save(connect_features.squeeze(0),os.path.join(feat_save_dir,keyid+".pt"))
+                    torch.save(connect_features.squeeze(0),os.path.join(cfg.feat_save_dir,keyid+".pt"))
                 progress.update(task, advance=1)
 
     logger.info("All the sampling are done")

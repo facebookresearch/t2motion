@@ -54,8 +54,6 @@ class BABEL(Dataset):
                  transforms_xyz: Optional[Transform] = None,
                  transforms_smpl: Optional[Transform] = None,
                  correspondance_path: str = None,
-                 amass_path: str = None,
-                 smplh_path: str = None,
                  sampler=None,
                  framerate: float = 12.5,
                  progress_bar: bool = True,
@@ -66,34 +64,16 @@ class BABEL(Dataset):
                  add_noise = False,
                  noise_std = 0.0,
                  num_classes: int = 0,
-                 if_mask = False,
-                 if_llm_aug = False,
-                 if_weighted = False,
-                 if_contrast = False,
-                 mask_ratio = 0.7,
-                 s_mask_ratio = 1.0,
-                 temporal_window = 2,
                  nfeats = 135,
                  tiny: bool = False, **kwargs):
 
         self.split = split
-        self.if_llm_aug = if_llm_aug
         self.add_noise = add_noise
         self.noise_std = noise_std
         self.load_amass_data = load_amass_data
         self.load_with_rot = load_with_rot
         self.downsample = downsample
         self.num_classes = num_classes
-        self.if_mask = if_mask
-        self.mask_ratio = mask_ratio
-        self.s_mask_ratio = s_mask_ratio
-        self.temporal_window = temporal_window
-        self.temporal_pool = nn.AdaptiveAvgPool1d(temporal_window)
-        if self.if_mask:
-            self.mask_token = nn.Parameter(torch.zeros(135))
-            normal_(self.mask_token, std=.02)
-            self.spat_token = nn.Parameter(torch.zeros(1))
-            normal_(self.spat_token, std =.02)
 
         if load_amass_data and not self.load_with_rot:
             self.transforms_xyz = transforms_xyz
@@ -104,8 +84,6 @@ class BABEL(Dataset):
 
         self.sampler = sampler
         self.pick_one_text = pick_one_text
-        self.if_weighted = if_weighted
-        self.if_contrast = if_contrast
 
         super().__init__()
         keyids = get_split_keyids(path=splitpath, split=split)
@@ -149,72 +127,13 @@ class BABEL(Dataset):
             total = len(self.keyids)
             percentage = 100 * num_bad / (total+num_bad)
             logger.info(f"There are {num_bad} sequences rejected by the sampler ({percentage:.4}%).")
-        
-    def _load_mask_datastruct(self, keyid):
-        features = torch.load(self.kitml_correspondances[keyid]["feat_path"])
-        datastruct = self.transforms.Datastruct(features=features)
-        
-        if self.s_mask_ratio<1.0:
-            temp_noise = torch.rand(features.size(0), device=features.device)
-            ids_shuffle = torch.argsort(temp_noise, dim=0) 
-            rm_frames = ids_shuffle[:int(features.size(0)*self.mask_ratio)]
-            mask_features = features.detach().clone().to(device=features.device)
-            for rm_frame in rm_frames:
-                spat_noise = torch.rand(features.size(1),device=features.device)
-                spat_ids_shuffle = torch.argsort(spat_noise,dim=0)
-                rm_spat_joints = spat_ids_shuffle[:int(features.size(1)*self.s_mask_ratio)]
-                for spat_id in rm_spat_joints:
-                    mask_features[rm_frame][spat_id] = self.spat_token.detach().clone()
-        else:
-            noise = torch.rand(features.size(0), device=features.device)  # noise in [0, 1]
-            ids_shuffle = torch.argsort(noise, dim=0)  # ascend: small is keep, large is remove
-            rm_frames = ids_shuffle[:int(features.size(0)*self.mask_ratio)]
-            mask_features = features.detach().clone().to(device=features.device)
-            for rm_frame in rm_frames:
-                mask_features[rm_frame] = self.mask_token.detach().clone()
-        mask_datastruct = self.transforms.Datastruct(features=mask_features)
-        return mask_datastruct, datastruct
-    
-    def _load_contrast_datastruct(self,keyid):
-        features = torch.load(self.kitml_correspondances[self.kitml_correspondances[keyid]["match_id"]]["feat_path"])
-        return self.transforms.Datastruct(features=features)
     
     def _load_datastruct(self, keyid):
         features = torch.load(self.kitml_correspondances[keyid]["feat_path"])
-        prev_keyid = -1
-        next_keyid = -1
-        
-        if prev_keyid != -1:
-            prev_act_features = torch.load(self.kitml_correspondances[str(prev_keyid)]["feat_path"])
-            if len(prev_act_features)<self.temporal_window:
-                prev_features = self.temporal_pool(prev_act_features.unsqueeze(0).permute(0,2,1)).squeeze().permute(1,0)
-            else:
-                prev_features = prev_act_features[-self.temporal_window:]
-        else:
-            prev_features = torch.zeros(self.temporal_window,self.nfeats)
-        
-        if next_keyid != -1:
-            next_act_features = torch.load(self.kitml_correspondances[str(next_keyid)]["feat_path"])
-            if len(next_act_features)<self.temporal_window:
-                next_features = self.temporal_pool(next_act_features.unsqueeze(0).permute(0,2,1)).squeeze().permute(1,0)
-            else:
-                next_features = next_act_features[:self.temporal_window]
-        else:
-            next_features = torch.zeros(self.temporal_window,self.nfeats)
-        
         if self.add_noise:
-            features+=torch.randn(features.size())*self.noise_std
-            
+            features+=torch.randn(features.size())*self.noise_std  
         datastruct = self.transforms.Datastruct(features=features)
-        prev_datastruct = self.transforms.Datastruct(features=prev_features)
-        next_datastruct = self.transforms.Datastruct(features=next_features)
-        connect_features = [features]
-        if prev_keyid != -1:
-            connect_features.insert(0,prev_features)
-        if next_keyid != -1:
-            connect_features.append(next_features)
-        connect_datastruct = self.transforms.Datastruct(features=torch.cat(connect_features,dim=0))
-        return datastruct,prev_datastruct,next_datastruct,connect_datastruct
+        return datastruct
     
     def _load_eval_datastruct(self,keyid):
         gt_features = torch.load(self.kitml_correspondances[keyid]["feat_path"])
@@ -222,59 +141,13 @@ class BABEL(Dataset):
         gt_datastruct = self.transforms.Datastruct(features=gt_features)
         pred_datastruct = self.transforms.Datastruct(features=pred_features)
         return gt_datastruct,pred_datastruct
-      
-    def _load_text(self, keyid):
-        sequences = self.kitml_correspondances[keyid]["text"]
-        if not self.pick_one_text:
-            return sequences
-        n = len(sequences)
-        if self.split != "test" and self.if_llm_aug:
-            index = np.random.randint(n)
-        else:
-            # Only the first one in evaluation
-            index = 0
-        text = sequences[index]
-        return text
     
     def load_keyid(self, keyid):
-        text = self._load_text(keyid)
-        if self.if_contrast:
-            if "match_id" not in self.kitml_correspondances[keyid]:
-                self.kitml_correspondances[keyid]["match_id"] = str(int(keyid)-1)
-            contrast_text = self._load_text(self.kitml_correspondances[keyid]["match_id"])
-        
         labels = self.kitml_correspondances[keyid]["labels"][0]
-        # labels = torch.zeros(self.num_classes)
-        # for label in self.kitml_correspondances[keyid]["labels"]:
-        #     labels[label] = 1
             
-        if self.if_mask:
-            mask_datastruct, datastruct = self._load_mask_datastruct(keyid)
-            element = {"datastruct": datastruct, "text": text,
-                "length": len(datastruct), "keyids": keyid,"mask_datastruct": mask_datastruct,"labels":labels}  
-        else:
-            datastruct,prev_datastruct,next_datastruct,connect_datastruct = self._load_datastruct(keyid)
-            if self.if_weighted:
-                weight = self.kitml_correspondances[keyid]["avg_cnt"]
-                if self.if_contrast:
-                    contrast_datastruct = self._load_contrast_datastruct(keyid)
-                    element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct, "contrast_text":contrast_text, "contrast_datastruct":contrast_datastruct, "contrast_length": len(contrast_datastruct),
-                    "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                    "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels, "weights":weight}
-                else:
-                    element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct,
-                    "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                    "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels, "weights":weight}
-            else:
-                if self.if_contrast:
-                    contrast_datastruct = self._load_contrast_datastruct(keyid)
-                    element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct, "contrast_text":contrast_text, "contrast_datastruct":contrast_datastruct, "contrast_length": len(contrast_datastruct),
-                    "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                    "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels}
-                else:
-                    element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct,
-                    "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                    "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels}
+        datastruct = self._load_datastruct(keyid)
+        element = {"datastruct": datastruct, "length": len(datastruct), 
+                   "keyids": keyid, "labels":labels}
         return element
 
     def load_eval_keyid(self, keyid):
