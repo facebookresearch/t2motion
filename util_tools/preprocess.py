@@ -8,11 +8,20 @@ from utils import load_amass_keyid
 from ems.data.tools.smpl import smpl_data_to_matrix_and_trans
 from ems.transforms.rots2rfeats.smplvelp import SMPLVelP
 
-amass_path = "/datasets01/amass/121119"
-amass_annt = "/private/home/yijunq/repos/t2motion/datasets/babelsync-ems-mul_amass_path_scratch.json"
-feat_folder = "/checkpoint/yijunq/gt_feats"
-feat_annt_path = "/private/home/yijunq/repos/t2motion/datasets/feat_amass_path.json"
-norm_path = "/private/home/yijunq/repos/t2motion/deps/transforms/rots2rfeats/smplvelp/rot6d/babelsync-ems-amass-rot"
+import argparse
+
+parser = argparse.ArgumentParser(description="Add Gen Feature Path to Annotation")
+parser.add_argument("--amass_path", type=str, default="/datasets01/amass/121119")
+parser.add_argument("--amass_annt", type=str, default="../datasets/babelsync_ems.json")
+parser.add_argument("--feat_folder", type=str, default="/checkpoint/yijunq/gt_feats")
+parser.add_argument("--feat_annt_path", type=str, default="/private/home/yijunq/repos/t2motion/datasets/babelsync.json")
+args = parser.parse_args()
+
+amass_path = args.amass_path
+amass_annt = args.amass_annt
+feat_folder = args.feat_folder
+feat_annt_path = args.feat_annt_path
+norm_path = "./feat_norm"
 annt_folder = ""
 
 new_annt = {}
