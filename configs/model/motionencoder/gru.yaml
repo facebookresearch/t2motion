@@ -1,7 +1,0 @@
-name: gru_encoder
-_target_: ems.model.motionencoder.gru.GRUEncoder
-
-latent_dim: ${model.latent_dim}
-vae: ${model.vae}
-
-num_layers: ${model.num_layers}

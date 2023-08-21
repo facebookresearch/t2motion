@@ -201,7 +201,6 @@ def regroup_metrics(metrics):
 def _sample(cfg: DictConfig):
     return sample(cfg)
 
-
 def cfg_mean_nsamples_resolution(cfg):
     if cfg.mean and cfg.number_of_samples > 1:
         logger.error("All the samples will be the mean.. cfg.number_of_samples=1 will be forced.")

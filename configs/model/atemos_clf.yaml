@@ -21,14 +21,14 @@ if_uniq: false
 if_weighted: false
 if_contrast: false
 if_physics: false
-if_clf: true
+if_clf: false
 
 defaults:
   - textencoder: atom
   - textdecoder: actor
   - motionencoder: atom
   - motiondecoder: actor
-  - discriminator: atom
+  - discriminator: gru
   - losses: atemos_clf
   - optim: adamw
   - /model/losses/function/clf@func_clf

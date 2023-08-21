@@ -26,16 +26,10 @@ class BaseModel(LightningModule):
         self.hparams.n_params_nontrainable = nontrainable
 
     def training_step(self, batch, batch_idx):
-        if self.if_mask:
-            return self.masksplit_step("train", batch, batch_idx)
-        else:
-            return self.allsplit_step("train", batch, batch_idx)
+        return self.allsplit_step("train", batch, batch_idx)
 
     def validation_step(self, batch, batch_idx):
-        if self.if_mask:
-            output_loss = self.masksplit_step("val", batch, batch_idx)
-        else:
-            output_loss = self.allsplit_step("val", batch, batch_idx)
+        output_loss = self.allsplit_step("val", batch, batch_idx)
         # metrics_dict = self.metrics.compute()
         # dico = {}
         # dico.update({f"Metrics/{metric}": value for metric, value in metrics_dict.items()})
@@ -45,10 +39,7 @@ class BaseModel(LightningModule):
 
 
     def test_step(self, batch, batch_idx):
-        if self.if_mask:
-            return self.masksplit_step("test", batch, batch_idx)
-        else:
-            return self.allsplit_step("test", batch, batch_idx)
+        return self.allsplit_step("test", batch, batch_idx)
 
     def allsplit_epoch_end(self, split: str, outputs):
         losses = self.losses[split]

@@ -28,20 +28,11 @@ class EMS(BaseModel):
                  nfeats: int,
                  vae: bool,
                  latent_dim: int,
-                 discriminator: DictConfig = None,
-                 textdecoder: DictConfig = None,
-                 uniqdecoder: DictConfig = None,
                  temporal_window: int = 3,
                  text_emb_size: int = 768,
-                 if_mask: bool = False,
-                 if_discriminator: bool = False,
-                 if_bigen: bool = False,
                  if_humor: bool = False,
-                 if_uniq: bool = False,
                  if_weighted: bool = False,
                  if_contrast: bool = False,
-                 if_physics: bool = False,
-                 clfencoder: DictConfig = None,
                  **kwargs):
         super().__init__()
         self.textencoder = instantiate(textencoder)
@@ -50,9 +41,6 @@ class EMS(BaseModel):
         if self.if_humor:
             self.humor_encoder = instantiate(motionencoder, nfeats=nfeats)
             self.humor_decoder = instantiate(motiondecoder, nfeats=nfeats)
-        self.if_uniq = if_uniq
-        if self.if_uniq:
-            self.uniqdecoder = instantiate(motiondecoder, nfeats=nfeats)
         self.feat_cache = {}
         self.mse = torch.nn.MSELoss()
 
@@ -78,21 +66,7 @@ class EMS(BaseModel):
         self.fact = None
         self.prev_thresh = 0.3
         self.if_weighted = if_weighted
-        self.if_mask = if_mask
-        self.if_bigen = if_bigen
-        self.if_physics = if_physics
         self.if_contrast = if_contrast
-        if self.if_bigen:
-            self.text_emb_size = text_emb_size
-            self.textdecoder = instantiate(textdecoder, text_encoded_dim=self.text_emb_size)
-            
-        self.if_discriminator = if_discriminator
-        if self.if_discriminator:
-            self.discriminator = instantiate(discriminator, nfeats=nfeats)
-            self.clf = nn.Sequential(
-                    nn.Linear(latent_dim, 1),
-                    nn.Sigmoid()
-                )
         
         self.__post_init__()
 
@@ -217,19 +191,9 @@ class EMS(BaseModel):
             latent_vector = self.sample_from_distribution(distribution)
         else:
             raise NotImplementedError("Currently only support vae")
-        if self.if_uniq:
-            features = self.uniqdecoder(latent_vector, lengths)
-        else:
-            features = self.motiondecoder(latent_vector, lengths)
+        features = self.motiondecoder(latent_vector, lengths)
         datastruct = self.Datastruct(features=features)
-        
-        if self.if_bigen:
-            text_encoded = text_encoded * text_mask.unsqueeze(2).repeat(1,1,self.text_emb_size)
-            text_lengths = mask_to_lengths(text_mask)
-            recons_text_encoded = self.textdecoder(latent_vector, text_lengths)
 
-        if not return_latent:
-            return datastruct
         return datastruct, latent_vector, distribution, text_encoded, text_lengths, recons_text_encoded
 
     def motion_to_motion_forward(self, datastruct,
@@ -255,8 +219,6 @@ class EMS(BaseModel):
         # Decode the latent vector to a motion
         features = self.motiondecoder(latent_vector, lengths)
         motion_datastruct = self.Datastruct(features=features)
-        if self.if_bigen:
-            motion_recons_text_encoded = self.textdecoder(latent_vector, text_lengths)
 
         if not return_latent:
             return motion_datastruct
@@ -400,9 +362,6 @@ class EMS(BaseModel):
         datastruct_ref_connect = batch["connect_datastruct"]
         ref_probs = None
         pred_probs = None
-        if self.if_discriminator:
-            ref_probs = self.clf(self.discriminator(datastruct_ref_connect.features, connect_lengths))
-            pred_probs = self.clf(self.discriminator(datastruct_from_connect.features, connect_lengths))
         
         self.update_feat_cache(batch["keyids"],
                                 datastruct_from_text,
