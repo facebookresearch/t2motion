@@ -1,1 +1,1 @@
-python interact.py folder=./outputs/pretrained/ems input_dict=./pick_up.json
+python interact.py folder=./outputs/pretrained/ems input_dict=./texts/pick_up.json

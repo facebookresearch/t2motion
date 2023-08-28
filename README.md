@@ -77,11 +77,11 @@ Our experiments are made on 8 V100 GPUs with a total batch size of 8X8=64, so yo
 ## Interactive Rendering
 To make it easier to use our model, we also provide an interactive code which takes in natural language descriptions and durations of each atomic action. Please modify the input information in "./input.json" then run (we provide several samples under "./texts"):
 ```bash
-    python interact.py folder=/private/home/yijunq/repos/t2motion/outputs/babelsync-ems-mul-amass-rot/baseline/iccv_submission
+    python interact.py folder=./outputs/pretrained/ems
 
-    blender --background --python render.py -- npy=./outputs/babelsync-ems-mul-amass-rot/baseline/iccv/interact_samples/neutral_vis/ems.npy mode=video
+    blender --background --python render.py -- npy=./outputs/pretrained/ems/neutral_input/ems.npy mode=video
 ```
-You are expected to get a ems.webv file under "./outputs/babelsync-ems-mul-amass-rot/baseline/iccv_submission/interact_samples/neutral_vis".
+You are expected to get a ems.webv file under "./outputs/pretrained/ems/interact_samples/neutral_input".
 ## Acknowledgments
 We want to especially thank the following contributors that our code is based on:
 [TEMOS](https://github.com/Mathux/TEMOS),[MDM](https://github.com/GuyTevet/motion-diffusion-model), and [MultiAct](https://github.com/TaeryungLee/MultiAct_RELEASE/tree/main).
