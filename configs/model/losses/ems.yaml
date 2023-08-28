@@ -15,8 +15,8 @@ lmd_latent: 1.0e-5
 lmd_kl: 1.0e-5
 
 ## contrastive losses
-lmd_text_contrast: 1.0e-3
-lmd_motion_contrast: 1.0e-3
+lmd_text_contrast: 1.0e-5
+lmd_motion_contrast: 1.0e-5
 
 # Ablations
 loss_on_both: true
@@ -25,8 +25,6 @@ force_loss_on_jfeats: false
 ablation_no_kl_combine: false
 ablation_no_kl_gaussian: false
 ablation_no_motionencoder: false
-humor: ${model.if_humor}
-contrast: ${model.if_contrast}
 
 # Late => rfeats (prev features)
 recons_connect2connect: ${.lmd_connect_recons}

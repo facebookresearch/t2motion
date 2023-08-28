@@ -1,0 +1,24 @@
+{
+    "texts": [
+        "the person walk",
+        "transit from walk to bend over",
+        "bend over",
+        "transit from bend over to pick up",
+        "pick up",
+        "transit from pick up to place",
+        "place",
+        "transit from place to walk",
+        "walk"
+    ],
+    "durations": [
+        27,
+        4,
+        10,
+        5,
+        7,
+        4,
+        12,
+        17,
+        31
+    ]
+}

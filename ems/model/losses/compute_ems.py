@@ -11,21 +11,17 @@ class EMSComputeLosses(Module):
                  force_loss_on_jfeats: bool = True,
                  ablation_no_kl_combine: bool = False,
                  ablation_no_motionencoder: bool = False,
-                 humor: bool = False,
-                 contrast: bool = False,
                  ablation_no_kl_gaussian: bool = False, **kwargs):
         super().__init__()
 
         # Save parameters
         self.vae = vae
         self.mode = mode
-        self.humor = humor
         self.loss_on_both = loss_on_both
         self.force_loss_on_jfeats = force_loss_on_jfeats
         self.ablation_no_kl_combine = ablation_no_kl_combine
         self.ablation_no_kl_gaussian = ablation_no_kl_gaussian
         self.ablation_no_motionencoder = ablation_no_motionencoder
-        self.contrast= contrast
 
         losses = []
         if mode == "xyz" or force_loss_on_jfeats:
@@ -53,11 +49,10 @@ class EMSComputeLosses(Module):
         if not self.vae or loss_on_both:
             if not ablation_no_motionencoder:
                 losses.append("latent_manifold")
-        if self.humor:
-            losses.extend(["kl_text2humor","latent_humor","recons_text2humor"])
+            
+        losses.extend(["kl_text2humor","latent_humor","recons_text2humor"])
         
-        if self.contrast:
-            losses.extend(["text_contrast","motion_contrast"])
+        losses.extend(["text_contrast","motion_contrast"])
             
         losses.append("total")
 
@@ -77,9 +72,8 @@ class EMSComputeLosses(Module):
     def update(self, ds_text=None, ds_motion=None, ds_connect=None, ds_ref=None,
                ds_ref_connect = None, lat_text=None, lat_motion=None, lat_connect = None,
                dis_text=None, dis_motion=None, dis_connect=None, dis_ref=None, dis_ref_connect=None, 
-               ref_probs= None, pred_probs=None, motion2text=None, text2text=None, textref=None,
                dis_humor = None, lat_humor = None, ds_humor = None, weights=None, lat_motion_contrast=None,
-               lat_text_contrast= None, dis_text_contrast=None, dis_motion_contrast=None, lengths=None ):
+               lat_text_contrast= None, lengths=None ):
         total: float = 0.0
         bs = ds_motion.rfeats.size(0)
         nframes = ds_motion.rfeats.size(1)
@@ -98,13 +92,13 @@ class EMSComputeLosses(Module):
                     total += self._update_loss("recons_rfeats2rfeats", ds_motion.rfeats*stack_weights, ds_ref.rfeats*stack_weights)
             if weights is None:
                 total += self._update_loss("recons_text2rfeats", ds_text.rfeats, ds_ref.rfeats)
-                total += self._update_loss("recons_text2rfeats", ds_text.joints, ds_ref.joints)
+                #total += self._update_loss("recons_text2rfeats", ds_text.joints, ds_ref.joints)
                 total += self._update_loss("recons_connect2connect",ds_connect.rfeats,ds_ref_connect.rfeats)
             else:
                 stack_weights = weights.view(-1,1,1).repeat(1,nframes,feat_degree)
                 total += self._update_loss("recons_text2rfeats", ds_text.rfeats*stack_weights, ds_ref.rfeats*stack_weights)
-                stack_weights = weights.view(-1,1,1,1).repeat(1,nframes,21,3)
-                total += self._update_loss("recons_text2rfeats", ds_text.joints*stack_weights, ds_ref.joints*stack_weights)
+                # stack_weights = weights.view(-1,1,1,1).repeat(1,nframes,21,3)
+                # total += self._update_loss("recons_text2rfeats", ds_text.joints*stack_weights, ds_ref.joints*stack_weights)
                 stack_weights = weights.view(-1,1,1).repeat(1,ds_connect.rfeats.size(1),feat_degree)
                 total += self._update_loss("recons_connect2connect",ds_connect.rfeats*stack_weights,ds_ref_connect.rfeats*stack_weights)
             
@@ -126,20 +120,18 @@ class EMSComputeLosses(Module):
                     stack_weights = weights.view(-1,1).repeat(1,lat_text.size(-1))
                     total += self._update_loss("latent_manifold", lat_text*stack_weights, lat_motion*stack_weights)
         
-        if self.humor:
-            total += self._update_loss("kl_text2humor", dis_connect, dis_humor, weights)
-            if weights is None:
-                total += self._update_loss("recons_text2humor", ds_connect.rfeats, ds_humor.rfeats)
-                total += self._update_loss("latent_humor", lat_connect, lat_humor)
-            else:
-                stack_weights = weights.view(-1,1,1).repeat(1,ds_connect.rfeats.size(1),feat_degree)
-                total += self._update_loss("recons_text2humor", ds_connect.rfeats*stack_weights,ds_humor.rfeats*stack_weights)
-                stack_weights = weights.view(-1,1).repeat(1,lat_connect.size(-1))
-                total += self._update_loss("latent_humor", lat_connect*stack_weights, lat_humor*stack_weights)
+        total += self._update_loss("kl_text2humor", dis_connect, dis_humor, weights)
+        if weights is None:
+            total += self._update_loss("recons_text2humor", ds_connect.rfeats, ds_humor.rfeats)
+            total += self._update_loss("latent_humor", lat_connect, lat_humor)
+        else:
+            stack_weights = weights.view(-1,1,1).repeat(1,ds_connect.rfeats.size(1),feat_degree)
+            total += self._update_loss("recons_text2humor", ds_connect.rfeats*stack_weights,ds_humor.rfeats*stack_weights)
+            stack_weights = weights.view(-1,1).repeat(1,lat_connect.size(-1))
+            total += self._update_loss("latent_humor", lat_connect*stack_weights, lat_humor*stack_weights)
         
-        if self.contrast:
-            total += self._update_loss("text_contrast", lat_text_contrast, lat_text)
-            total += self._update_loss("motion_contrast", lat_motion_contrast, lat_motion)
+        total += self._update_loss("text_contrast", lat_text_contrast, lat_text)
+        total += self._update_loss("motion_contrast", lat_motion_contrast, lat_motion)
         
         self.total += total.detach()
         self.count += 1
@@ -166,8 +158,6 @@ class EMSComputeLosses(Module):
 
     def loss2logname(self, loss: str, split: str):
         if loss == "total":
-            log_name = f"{loss}/{split}"
-        elif loss == "footskate":
             log_name = f"{loss}/{split}"
         else:
             loss_type, name = loss.split("_")

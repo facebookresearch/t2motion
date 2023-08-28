@@ -197,7 +197,7 @@ def regroup_metrics(metrics):
 
     return dico
 
-@hydra.main(version_base=None, config_path="configs", config_name="sample_temos")
+@hydra.main(version_base=None, config_path="configs", config_name="sample_clf")
 def _sample(cfg: DictConfig):
     return sample(cfg)
 

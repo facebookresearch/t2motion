@@ -1,0 +1,1 @@
+/private/home/yijunq/repos/blender-2.93.9-linux-x64/blender --background --python render.py -- npy=/private/home/yijunq/repos/t2motion/outputs/babelsync-ems-mul-amass-rot/baseline/iccv_submission/interact_samples/neutral_vis/ems.npy mode=video

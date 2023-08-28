@@ -21,7 +21,7 @@ def sanitize(dico):
     dico = {key: "{:.5f}".format(float(val)) for key, val in dico.items()}
     return dico
 
-@hydra.main(version_base=None, config_path="configs", config_name="sample_clf_eval")
+@hydra.main(version_base=None, config_path="configs", config_name="eval_clf")
 def _sample(cfg: DictConfig):
     return sample(cfg)
 
@@ -99,13 +99,14 @@ def sample(newcfg: DictConfig) -> None:
     force_in_meter = cfg.jointstype != "mmmns"
     print("jointstype {}".format(cfg.jointstype))
     CMetrics = ClfMetrics()
-    FIDs = []
+    motion_latents = []
+    gt_latents = []
     import torch
     with torch.no_grad():
         with Progress(transient=True) as progress:
             task = progress.add_task("Sampling", total=len(dataset.keyids))
             for keyid in dataset.keyids:
-                print(keyid)
+                # print(keyid)
                 progress.update(task, description=f"Sampling {keyid}..")
                 for index in range(cfg.number_of_samples):
                     one_data = dataset.load_eval_keyid(keyid)
@@ -114,12 +115,14 @@ def sample(newcfg: DictConfig) -> None:
                     # fix the seed
                     pl.seed_everything(index)
                     motion_latent,motion_probs,gt_latent,gt_probs = model.eval_forward(batch)
-                    FIDs.append(calculate_frechet_distance(motion_latent,gt_latent))
+                    motion_latents.append(motion_latent)
+                    gt_latents.append(gt_latent)
                     CMetrics.update(motion_probs,batch["labels"])
                 progress.update(task, advance=1)
+            print("FID:{}".format(calculate_frechet_distance(torch.cat(motion_latents,dim=0),torch.cat(gt_latents,dim=0))))
             metrics = sanitize(CMetrics.compute())
-            print(metrics)
-            print("FID: {}".format(sum(FIDs)/len(FIDs)))
+            for k,v in metrics.items():
+                print("{}:{}".format(k,v))
 
     logger.info("All the sampling are done")
 

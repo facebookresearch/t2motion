@@ -3,19 +3,24 @@ import json
 import argparse
 
 parser = argparse.ArgumentParser(description="Add Gen Feature Path to Annotation")
-parser.add_argument("--gt_feat_folder", type=str, default="")
-parser.add_argument('--feat_folder', type=str, default="")
-parser.add_argument("--annt_path",type=str,default="../datasets/babelsync-ems-mul_amass_path_scratch.json")
-parser.add_argument('--jname', type=str, default="../datasets/ems-mul-clf_amass_path.json")
-
+parser.add_argument("--gt_feat_folder", type=str, default="/checkpoint/yijunq/gt_feats")
+parser.add_argument('--feat_folder', type=str, default="/checkpoint/yijunq/iccv_feats")
+parser.add_argument("--annt_path",type=str,default="../datasets/babelclf_ems.json")
+parser.add_argument('--jname', type=str, default="../datasets/babelclf.json")
+parser.add_argument("--val_lst",type=str,default="../datasets/babelsync-clf-splits/val")
 args = parser.parse_args()
 
 new_dict = {}
-feats = os.listdir(args.feat_folder)
 annt = json.load(open(args.annt_path,"r"))
-for feat in feats:
+val_lst = open(args.val_lst).readlines()
+for line in val_lst:
+    kid = line.strip()
+    feat = kid+".pt"
     if not os.path.exists(os.path.join(args.gt_feat_folder,feat)):
-        print("Motion File {} is Missing".format(feat))
+        print("GT Motion File {} is Missing".format(feat))
+        continue
+    if not os.path.exists(os.path.join(args.feat_folder,feat)):
+        print("GEN Motion File {} is Missing".format(feat))
         continue
     kid = feat.split(".")[0]
     new_dict[kid] = annt[kid]

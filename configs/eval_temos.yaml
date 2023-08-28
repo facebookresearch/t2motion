@@ -34,7 +34,7 @@ defaults:
   - data: null
   - machine: null
   - trainer: null
-  - sampler: variable_conseq
+  - sampler: stricter_conseq
   - /path@path
   - override hydra/job_logging: rich # custom
   - override hydra/hydra_logging: rich # custom

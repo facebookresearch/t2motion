@@ -64,7 +64,7 @@ class MotionDiscriminator(pl.LightningModule):
         lin1 = torch.tanh(lin1)
         # dim (num_samples, output_size)
         lin2 = self.linear2(lin1)
-        return lin2
+        return lin1,lin2
     
     def eval_forward(self, features: Tensor, lengths: Optional[List[int]] = None, indices=None, hidden_unit=None) -> Union[Tensor, Distribution]:
         if lengths is None:
@@ -95,4 +95,4 @@ class MotionDiscriminator(pl.LightningModule):
         lin1 = torch.tanh(lin1)
         # dim (num_samples, output_size)
         lin2 = self.linear2(lin1)
-        return lin1,lin2
+        return lin1*3.0,lin2

@@ -141,14 +141,6 @@ class BABEL(Dataset):
         gt_datastruct = self.transforms.Datastruct(features=gt_features)
         pred_datastruct = self.transforms.Datastruct(features=pred_features)
         return gt_datastruct,pred_datastruct
-    
-    def load_keyid(self, keyid):
-        labels = self.kitml_correspondances[keyid]["labels"][0]
-            
-        datastruct = self._load_datastruct(keyid)
-        element = {"datastruct": datastruct, "length": len(datastruct), 
-                   "keyids": keyid, "labels":labels}
-        return element
 
     def load_eval_keyid(self, keyid):
         labels = self.kitml_correspondances[keyid]["labels"][0]
@@ -159,7 +151,7 @@ class BABEL(Dataset):
     
     def __getitem__(self, index):
         keyid = self._split_index[index]
-        return self.load_keyid(keyid)
+        return self.load_eval_keyid(keyid)
 
     def __len__(self):
         return len(self._split_index)

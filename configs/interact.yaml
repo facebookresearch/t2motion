@@ -7,19 +7,22 @@ seed: 1234
 
 logger_level: INFO
 folder: ???
+
+data:
+  splitpath: ${path.datasets}/babelsync-ems-mul-splits
   
-split: val
+split: vis
 
 mean: false
 number_of_samples: 1
 fact: 1
 
-ckpt_name: last.pt
+ckpt_name: last.ckpt
 last_ckpt_path: ${get_last_checkpoint:${folder},${ckpt_name}}
 
 # only used if trained with kit-amass-rot
 # so with smpl rotations
-jointstype: mmm
+jointstype: vertices
 
 # if jointstype == vertices
 # can specify the gender
@@ -31,15 +34,12 @@ defaults:
   - data: null
   - machine: null
   - trainer: null
-  - sampler: variable_conseq
+  - sampler: all_conseq
   - /path@path
   - override hydra/job_logging: rich # custom
   - override hydra/hydra_logging: rich # custom
   - _self_
 
+input_dict: none
 
 data.batch_size: 1
-data:
-  batch_size: 1
-  splitpath: ${path.datasets}/babelsync-clf-splits
-  correspondance_path: ${path.datasets}/babelclf.json

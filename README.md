@@ -9,9 +9,8 @@ Please use the environment.yaml file to install required packages.
 ```bash
     conda env create -f environment.yaml
 ```
-### Download Body Model (Optional)
-This is only required if you want to render the 3D human figures.
-Please register and download the SMPLH body model from [here], and follow the introductions in [TEMOS](https://github.com/Mathux/TEMOS#4-optional-smpl-body-model) to preprocess the files.
+### Download Body Model
+Please register and download the SMPLH body model from [here](https://mano.is.tue.mpg.de/login.php), and follow the introductions in [TEMOS](https://github.com/Mathux/TEMOS#4-optional-smpl-body-model) to preprocess the files.
 Finally, you should get a directory as below:
 ```  
 ${ROOT}  
@@ -23,7 +22,7 @@ ${ROOT}
 |   |   |-- smplh.faces
 ```
 ### Install Blender (Optional)
-Similar to the previous step, this is only needed if you want to render the 3D human figures.
+This is only needed if you want to render the 3D human figures.
 We use blender to render the SMPL sequence, please install it from [here](https://www.blender.org/download/releases/2-93/). We build and test the code on blender 2.93, but higher version may also work.
 
 ## Data Preparation
@@ -62,7 +61,7 @@ to update the extracted ground truth feature path and generated feature path in 
 
 Finally, run
 ```bash
-    python eval_clf.py folder=$path_to_action_recognition_folder
+    python eval_clf.py folder=$path_to_action_recognition_model
 ```
 to get the acc&fid metrics.
 
@@ -71,12 +70,18 @@ To train the EMS model yourself, please also follow the data preparation steps t
 
 Finally run the training script:
 ```bash
-    python train.py data=babelsync-ems-mul-amass-rot run_id=iccv_submission model.if_weighted=true data.batch_size=8 model=ems model.if_humor=true model.optim.lr=5.0e-05 model.latent_dim=256 model.losses.lmd_text2rfeats_recons=1.0 model.if_contrast=true init_weight=/private/home/yijunq/repos/t2motion/outputs/humor.pt
+    python train.py data=babelsync-ems-mul-amass-rot run_id=iccv data.batch_size=8 model=ems model.optim.lr=5.0e-05 init_weight=/private/home/yijunq/repos/t2motion/outputs/humor_prior.pt
 ```
 
 Our experiments are made on 8 V100 GPUs with a total batch size of 8X8=64, so you may need to change the optim.lr accordingly based on the GPUs you used.
 ## Interactive Rendering
-To make it easier to use our model, we also provide an interactive code which takes in two kinds of input
+To make it easier to use our model, we also provide an interactive code which takes in natural language descriptions and durations of each atomic action. Please modify the input information in "./input.json" then run (we provide several samples under "./texts"):
+```bash
+    python interact.py folder=/private/home/yijunq/repos/t2motion/outputs/babelsync-ems-mul-amass-rot/baseline/iccv_submission
+
+    blender --background --python render.py -- npy=./outputs/babelsync-ems-mul-amass-rot/baseline/iccv/interact_samples/neutral_vis/ems.npy mode=video
+```
+You are expected to get a ems.webv file under "./outputs/babelsync-ems-mul-amass-rot/baseline/iccv_submission/interact_samples/neutral_vis".
 ## Acknowledgments
 We want to especially thank the following contributors that our code is based on:
 [TEMOS](https://github.com/Mathux/TEMOS),[MDM](https://github.com/GuyTevet/motion-diffusion-model), and [MultiAct](https://github.com/TaeryungLee/MultiAct_RELEASE/tree/main).

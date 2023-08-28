@@ -9,9 +9,9 @@ logger_level: INFO
 folder: ???
 
 data:
-  splitpath: ${path.datasets}/habitat_splits
-  
-split: gtest
+  splitpath: ${path.datasets}/babelsync-ems-mul-splits
+
+split: val
 
 mean: false
 number_of_samples: 1
@@ -28,7 +28,7 @@ jointstype: mmm
 # can specify the gender
 # neutral / male / female
 gender: neutral
-feat_save_dir: /checkpoint/yijunq/release_feats
+feat_save_dir: /checkpoint/yijunq/iccv_last_feats
 # Composing nested config with default
 defaults:
   - data: null

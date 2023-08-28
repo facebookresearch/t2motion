@@ -22,9 +22,9 @@ def calculate_frechet_distance(act1,act2, eps=1e-6):
     """
     inner_act1 = act1.cpu().numpy()
     inner_act2 = act2.cpu().numpy()
-    mu1 = inner_act1.mean(axis=1)
+    mu1 = inner_act1.mean(axis=0)
     sigma1 = np.cov(inner_act1, rowvar=False)
-    mu2 = inner_act2.mean(axis=1)
+    mu2 = inner_act2.mean(axis=0)
     sigma2 = np.cov(inner_act2, rowvar=False)
     
     mu1 = np.atleast_1d(mu1)

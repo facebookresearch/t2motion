@@ -1,0 +1,1 @@
+python interact.py folder=./outputs/pretrained/ems input_dict=./pick_up.json

@@ -30,17 +30,12 @@ class EMS(BaseModel):
                  latent_dim: int,
                  temporal_window: int = 3,
                  text_emb_size: int = 768,
-                 if_humor: bool = False,
-                 if_weighted: bool = False,
-                 if_contrast: bool = False,
                  **kwargs):
         super().__init__()
         self.textencoder = instantiate(textencoder)
         self.motionencoder = instantiate(motionencoder, nfeats=nfeats)
-        self.if_humor = if_humor
-        if self.if_humor:
-            self.humor_encoder = instantiate(motionencoder, nfeats=nfeats)
-            self.humor_decoder = instantiate(motiondecoder, nfeats=nfeats)
+        self.humor_encoder = instantiate(motionencoder, nfeats=nfeats)
+        self.humor_decoder = instantiate(motiondecoder, nfeats=nfeats)
         self.feat_cache = {}
         self.mse = torch.nn.MSELoss()
 
@@ -65,8 +60,6 @@ class EMS(BaseModel):
         self.sample_mean = False
         self.fact = None
         self.prev_thresh = 0.3
-        self.if_weighted = if_weighted
-        self.if_contrast = if_contrast
         
         self.__post_init__()
 
@@ -342,21 +335,19 @@ class EMS(BaseModel):
         ret = self.connect_to_connect_forward(prev_features, datastruct_from_text, next_features, batch["prev_ids"], batch["next_ids"], batch["length"], return_latent = True)
         datastruct_from_connect, latent_from_connect, distribution_from_connect, connect_lengths = ret
         
-        if self.if_humor:
-            ret = self.humor_forward(batch["datastruct"],
-                                     batch["length"],
-                                     connect_lengths,
-                                     return_latent=True)
-            datastruct_from_humor, latent_from_humor, distribution_from_humor = ret
+        ret = self.humor_forward(batch["datastruct"],
+                                    batch["length"],
+                                    connect_lengths,
+                                    return_latent=True)
+        datastruct_from_humor, latent_from_humor, distribution_from_humor = ret
         
         contrast_text_distribution= None
         contrast_text_latent_vector = None
         contrast_motion_distribution = None
         contrast_motion_latent_vector = None
         
-        if self.if_contrast:
-            ret = self.contrast_forward(batch["contrast_text"], batch["contrast_datastruct"], batch["contrast_length"])
-            contrast_text_distribution,contrast_text_latent_vector,contrast_motion_distribution,contrast_motion_latent_vector = ret
+        ret = self.contrast_forward(batch["contrast_text"], batch["contrast_datastruct"], batch["contrast_length"])
+        contrast_text_distribution,contrast_text_latent_vector,contrast_motion_distribution,contrast_motion_latent_vector = ret
         # GT data
         datastruct_ref = batch["datastruct"]
         datastruct_ref_connect = batch["connect_datastruct"]
@@ -381,63 +372,28 @@ class EMS(BaseModel):
             distribution_ref = None
         
         # Compute the losses
-        if self.if_weighted:
-            weights = batch["weights"]
-        else:
-            weights = None
-        if self.if_humor:
-            loss = self.losses[split].update(ds_text=datastruct_from_text,
-                                         ds_motion=datastruct_from_motion,
-                                         ds_connect = datastruct_from_connect,
-                                         ds_ref=datastruct_ref,
-                                         ds_ref_connect = datastruct_ref_connect,
-                                         ds_humor = datastruct_from_humor,
-                                         lat_text=latent_from_text,
-                                         lat_motion=latent_from_motion,
-                                         lat_connect = latent_from_connect,
-                                         lat_humor = latent_from_humor,
-                                         lat_motion_contrast = contrast_motion_latent_vector,
-                                         lat_text_contrast = contrast_text_latent_vector,
-                                         dis_text=distribution_from_text,
-                                         dis_motion=distribution_from_motion,
-                                         dis_connect = distribution_from_connect,
-                                         dis_humor = distribution_from_humor,
-                                         dis_motion_contrast = contrast_motion_distribution,
-                                         dis_text_contrast = contrast_text_distribution,
-                                         dis_ref = distribution_ref,
-                                         dis_ref_connect = distribution_ref_connect,
-                                         ref_probs = ref_probs,
-                                         pred_probs = pred_probs,
-                                         motion2text = motion_recons_text_encoded,
-                                         text2text = recons_text_encoded,
-                                         textref = text_encoded,
-                                         weights=weights,
-                                         lengths = batch["length"])
-        else:
-            loss = self.losses[split].update(ds_text=datastruct_from_text,
-                                         ds_motion=datastruct_from_motion,
-                                         ds_connect = datastruct_from_connect,
-                                         ds_ref=datastruct_ref,
-                                         ds_ref_connect = datastruct_ref_connect,
-                                         lat_text=latent_from_text,
-                                         lat_motion=latent_from_motion,
-                                         lat_connect = latent_from_connect,
-                                         lat_motion_contrast = contrast_motion_latent_vector,
-                                         lat_text_contrast = contrast_text_latent_vector,
-                                         dis_text=distribution_from_text,
-                                         dis_motion=distribution_from_motion,
-                                         dis_connect = distribution_from_connect,
-                                         dis_motion_contrast = contrast_motion_distribution,
-                                         dis_text_contrast = contrast_text_distribution,
-                                         dis_ref = distribution_ref,
-                                         dis_ref_connect = distribution_ref_connect,
-                                         ref_probs = ref_probs,
-                                         pred_probs = pred_probs,
-                                         motion2text = motion_recons_text_encoded,
-                                         text2text = recons_text_encoded,
-                                         textref = text_encoded,
-                                         weights=weights,
-                                         lengths = batch["length"])
+        weights = batch["weights"]
+        loss = self.losses[split].update(
+            ds_text=datastruct_from_text,
+            ds_motion=datastruct_from_motion,
+            ds_connect = datastruct_from_connect,
+            ds_ref=datastruct_ref,
+            ds_ref_connect = datastruct_ref_connect,
+            ds_humor = datastruct_from_humor,
+            lat_text=latent_from_text,
+            lat_motion=latent_from_motion,
+            lat_connect = latent_from_connect,
+            lat_humor = latent_from_humor,
+            lat_motion_contrast = contrast_motion_latent_vector,
+            lat_text_contrast = contrast_text_latent_vector,
+            dis_text=distribution_from_text,
+            dis_motion=distribution_from_motion,
+            dis_connect = distribution_from_connect,
+            dis_humor = distribution_from_humor,
+            dis_ref = distribution_ref,
+            dis_ref_connect = distribution_ref_connect,
+            weights=weights,
+            lengths = batch["length"])
         if loss is None:
             raise ValueError("Loss is None, this happend with torchmetrics > 0.7")
         

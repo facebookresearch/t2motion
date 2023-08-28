@@ -40,21 +40,20 @@ def train(cfg: DictConfig) -> None:
     
     if os.path.exists(cfg.init_weight):
         state_dict = torch.load(cfg.init_weight)["state_dict"]
-        if cfg.model.if_humor:
-            model_dict = model.state_dict()
-            parse_dict = {}
-            for k,v in state_dict.items():
-                if "motionencoder" in k:
-                    parse_dict[k.replace("motionencoder","humor_encoder")] = v
-                if "motiondecoder" in k:
-                    parse_dict[k.replace("motiondecoder","humor_decoder")] = v
-            model_dict.update(parse_dict)
-            model.load_state_dict(model_dict)
-            num_freeze_params = 0
-            for k,v in model.named_parameters():
-                if k.startswith("humor"):
-                    num_freeze_params +=1
-                    v.requires_grad = False
+        model_dict = model.state_dict()
+        parse_dict = {}
+        for k,v in state_dict.items():
+            if "humor_encoder" in k:
+                parse_dict[k] = v
+            if "humor_decoder" in k:
+                parse_dict[k] = v
+        model_dict.update(parse_dict)
+        model.load_state_dict(model_dict)
+        num_freeze_params = 0
+        for k,v in model.named_parameters():
+            if k.startswith("humor"):
+                num_freeze_params +=1
+                v.requires_grad = False
         print("Init with weight {}".format(cfg.init_weight))
         print("Totally {} params frozen".format(num_freeze_params))
     logger.info(f"Model '{cfg.model.modelname}' loaded")

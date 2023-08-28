@@ -1,0 +1,1 @@
+python eval_clf.py folder=./outputs/pretrained/action_recognition

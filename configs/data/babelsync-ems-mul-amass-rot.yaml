@@ -8,7 +8,7 @@ splitpath: ${path.datasets}/babelsync-ems-mul-splits
 # Amass
 load_amass_data: true
 load_with_rot: true
-correspondance_path: ${path.datasets}/babelsync-ems-mul_amass_path.json
+correspondance_path: ${path.datasets}/babelsync.json
 amass_path: ${path.datasets}/AMASS
 smplh_path: ${path.deps}/smplh
 
@@ -30,7 +30,5 @@ tiny: false
 progress_bar: true
 add_noise: false
 noise_std: 0.05
-if_weighted: ${model.if_weighted}
-if_contrast: ${model.if_contrast}
 temporal_window: 3
 nfeats: 135

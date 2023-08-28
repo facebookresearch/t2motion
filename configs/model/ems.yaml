@@ -12,9 +12,6 @@ num_head: ${model.num_layers}
 droupout: 0.1
 activation: "gelu"
 temporal_window: 3
-if_humor: false
-if_weighted: false
-if_contrast: false
 
 defaults:
   - textencoder: atom

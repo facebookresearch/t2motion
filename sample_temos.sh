@@ -1,1 +1,0 @@
-python sample_temos.py folder=/private/home/yijunq/repos/t2motion/outputs/babelsync-ems-mul-amass-rot/baseline/iccv_submission

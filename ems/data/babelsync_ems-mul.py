@@ -62,8 +62,6 @@ class BABEL(Dataset):
                  downsample=True,
                  add_noise = False,
                  noise_std = 0.0,
-                 if_weighted = False,
-                 if_contrast = False,
                  temporal_window = 2,
                  nfeats = 135,
                  tiny: bool = False, **kwargs):
@@ -86,8 +84,6 @@ class BABEL(Dataset):
 
         self.sampler = sampler
         self.pick_one_text = pick_one_text
-        self.if_weighted = if_weighted
-        self.if_contrast = if_contrast
 
         super().__init__()
         keyids = get_split_keyids(path=splitpath, split=split)
@@ -130,7 +126,7 @@ class BABEL(Dataset):
         if split != "test" and not tiny:
             total = len(self.keyids)
             percentage = 100 * num_bad / (total+num_bad)
-            logger.info(f"There are {num_bad} sequences rejected by the sampler ({percentage:.4}%).")
+            # logger.info(f"There are {num_bad} sequences rejected by the sampler ({percentage:.4}%).")
     
     def _load_contrast_datastruct(self,keyid):
         features = torch.load(self.kitml_correspondances[self.kitml_correspondances[keyid]["match_id"]]["feat_path"])
@@ -188,12 +184,11 @@ class BABEL(Dataset):
 
     def load_keyid(self, keyid):
         text = self._load_text(keyid)
-        if self.if_contrast:
-            if "match_id" not in self.kitml_correspondances[keyid]:
-                self.kitml_correspondances[keyid]["match_id"] = str(int(keyid)-1)
-            if self.kitml_correspondances[keyid]["match_id"] not in self.kitml_correspondances:
-                self.kitml_correspondances[keyid]["match_id"] = self._split_index[self._split_index.index(keyid)-1]
-            contrast_text = self._load_text(self.kitml_correspondances[keyid]["match_id"])
+        if "match_id" not in self.kitml_correspondances[keyid]:
+            self.kitml_correspondances[keyid]["match_id"] = str(int(keyid)-1)
+        if self.kitml_correspondances[keyid]["match_id"] not in self.kitml_correspondances:
+            self.kitml_correspondances[keyid]["match_id"] = self._split_index[self._split_index.index(keyid)-1]
+        contrast_text = self._load_text(self.kitml_correspondances[keyid]["match_id"])
         
         if "labels" in self.kitml_correspondances[keyid]:
             labels = self.kitml_correspondances[keyid]["labels"][0]
@@ -201,27 +196,12 @@ class BABEL(Dataset):
             labels = 0
             
         datastruct,prev_datastruct,next_datastruct,connect_datastruct = self._load_datastruct(keyid)
-        if self.if_weighted:
-            weight = self.kitml_correspondances[keyid]["avg_cnt"]
-            if self.if_contrast:
-                contrast_datastruct = self._load_contrast_datastruct(keyid)
-                element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct, "contrast_text":contrast_text, "contrast_datastruct":contrast_datastruct, "contrast_length": len(contrast_datastruct),
-                "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels, "weights":weight}
-            else:
-                element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct,
-                "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels, "weights":weight}
-        else:
-            if self.if_contrast:
-                contrast_datastruct = self._load_contrast_datastruct(keyid)
-                element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct, "contrast_text":contrast_text, "contrast_datastruct":contrast_datastruct, "contrast_length": len(contrast_datastruct),
-                "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels}
-            else:
-                element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct,
-                "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
-                "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels}
+        weight = self.kitml_correspondances[keyid]["avg_cnt"]
+        contrast_datastruct = self._load_contrast_datastruct(keyid)
+        element = {"datastruct": datastruct, "text": text, "next_datastruct": next_datastruct, "contrast_text":contrast_text, "contrast_datastruct":contrast_datastruct, "contrast_length": len(contrast_datastruct),
+        "length": len(datastruct), "keyids": keyid, "prev_ids":self.kitml_correspondances[keyid]["prev"], "connect_datastruct":connect_datastruct,
+        "prev_datastruct": prev_datastruct, "next_ids":self.kitml_correspondances[keyid]["next"], "labels":labels, "weights":weight}
+       
         return element
 
     def load_eval_keyid(self, keyid):

@@ -23,7 +23,7 @@ denoising: true
 # oldrender=true gray scale background
 # oldrender=false transparent background, materials a bit different
 oldrender: true
-contacts: true
+contacts: false
 res: high
 # "high", "med", "low"
 
