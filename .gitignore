@@ -129,8 +129,7 @@ dmypy.json
 .pyre/
 
 #large folders
-datasets
-datasets/
+datasets/eval_splits
 outputs
 outputs/
 deps

@@ -26,7 +26,7 @@ This is only needed if you want to render the 3D human figures.
 We use blender to render the SMPL sequence, please install it from [here](https://www.blender.org/download/releases/2-93/). We build and test the code on blender 2.93, but higher version may also work.
 
 ## Data Preparation
-Please download the annotation from [Here](), and SMPLH human motion data from [AMASS](https://amass.is.tue.mpg.de/). Currently, our model is trained with SMPLH body model, so please select the "SMPL+H G" icon in the download page.
+Please download SMPLH human motion data from [AMASS](https://amass.is.tue.mpg.de/). Currently, our model is trained with SMPLH body model, so please select the "SMPL+H G" icon in the download page.
 After downloading, please change the "$path_to_amass" to where the AMASS dataset is downloaded and "$path_to_extracted_feature_folder" to the place where you want to store the extracted features.
 Then run
 ```bash
@@ -37,7 +37,7 @@ cd ../
 You are expected to get the annotation file "babelsync.json" under "./datasets" and extracted feature files (xxx.pt) under your selected folder.
 
 ## Evaluation
-To quickly evaluate our model, please firstly follow the data preparation steps to get the converted annotation file and feature folder, then download the pretrained model from [here](), and download the action recognition model from [here]().
+To quickly evaluate our model, please firstly follow the data preparation steps to get the converted annotation file and feature folder, then download the pretrained model from [here](https://drive.google.com/drive/folders/11CDMHvRDjaQaEytqGIeq7kaT8FZYjLrD?usp=drive_link), and download the action recognition model from [here](https://drive.google.com/drive/folders/1eVY1F6LH_c1g0Gtg6UtQBCysg9i10cWI?usp=drive_link).
 
 To evaluate the model with APE&AVE metrics, simply run:
 ```bash
@@ -66,7 +66,7 @@ Finally, run
 to get the acc&fid metrics.
 
 ## Training
-To train the EMS model yourself, please also follow the data preparation steps to get the converted annotation file and feature folder, then download the humor prior model from [here]() and place it under the "./outputs" folder.
+To train the EMS model yourself, please also follow the data preparation steps to get the converted annotation file and feature folder, then download the humor prior model from [here](https://drive.google.com/file/d/1LVXnmoxw6a-NR9EIi2PUAL0Sl56GKf1Q/view?usp=drive_link) and place it under the "./outputs" folder.
 
 Finally run the training script:
 ```bash

@@ -4,7 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description="Add Gen Feature Path to Annotation")
 parser.add_argument("--gt_feat_folder", type=str, default="/checkpoint/yijunq/gt_feats")
-parser.add_argument('--feat_folder', type=str, default="/checkpoint/yijunq/iccv_feats")
+parser.add_argument('--feat_folder', type=str, default="/checkpoint/yijunq/iccv_last_feats")
 parser.add_argument("--annt_path",type=str,default="../datasets/babelclf_ems.json")
 parser.add_argument('--jname', type=str, default="../datasets/babelclf.json")
 parser.add_argument("--val_lst",type=str,default="../datasets/babelsync-clf-splits/val")

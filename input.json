@@ -1,12 +1,20 @@
 {
     "texts": [
-        "the person tpose",
-        "tpose",
-        "stand"
+        "the person walk",
+        "transit from walk to bend over",
+        "bend over",
+        "pick up",
+        "place",
+        "transit from place to walk",
+        "walk"
     ],
     "durations": [
-        50,
-        24,
-        24
+        21,
+        5,
+        7,
+        8,
+        9,
+        22,
+        26
     ]
 }
