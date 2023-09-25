@@ -143,3 +143,5 @@ demos/
 ./logs.out
 logs.err
 logs.out
+job.sh
+./job.sh

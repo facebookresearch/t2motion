@@ -85,3 +85,6 @@ You are expected to get a ems.webv file under "./outputs/pretrained/ems/interact
 ## Acknowledgments
 We want to especially thank the following contributors that our code is based on:
 [TEMOS](https://github.com/Mathux/TEMOS),[MDM](https://github.com/GuyTevet/motion-diffusion-model), and [MultiAct](https://github.com/TaeryungLee/MultiAct_RELEASE/tree/main).
+
+## License
+EMS is released under the [MIT license](https://github.com/facebookresearch/t2motion/blob/main/LICENSE).
