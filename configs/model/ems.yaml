@@ -1,0 +1,29 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+modelname: ems
+_target_: ems.model.ems.EMS
+latent_dim: 256
+text_emb_size: 768
+vae: true
+
+transforms: ${transforms}
+
+ff_size: 1024
+num_layers: 6
+num_head: ${model.num_layers}
+droupout: 0.1
+activation: "gelu"
+temporal_window: 3
+
+defaults:
+  - textencoder: atom
+  - textdecoder: actor
+  - motionencoder: atom
+  - motiondecoder: actor
+  - losses: ems
+  - optim: adamw
+  - /model/losses/function/smoothL1@func_recons
+  - /model/losses/function/smoothL1@func_latent
+  - /model/losses/function/kl@func_kl
+  - /model/losses/function/contrast@func_contrast

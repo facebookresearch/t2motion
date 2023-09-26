@@ -1,0 +1,20 @@
+{
+    "texts": [
+        "the person stand",
+        "transit from stand to go upstairs",
+        "go upstairs",
+        "transit from go upstairs to descend stairs",
+        "descend stairs",
+        "transit from descend stairs to stand",
+        "stand"
+    ],
+    "durations": [
+        10,
+        7,
+        37,
+        22,
+        38,
+        11,
+        8
+    ]
+}

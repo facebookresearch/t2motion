@@ -1,0 +1,48 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+seed: 1234
+
+logger_level: INFO
+folder: ???
+  
+split: val
+
+mean: false
+number_of_samples: 1
+fact: 1
+
+ckpt_name: last.pt
+last_ckpt_path: ${get_last_checkpoint:${folder},${ckpt_name}}
+
+# only used if trained with kit-amass-rot
+# so with smpl rotations
+jointstype: mmm
+
+# if jointstype == vertices
+# can specify the gender
+# neutral / male / female
+gender: neutral
+
+# Composing nested config with default
+defaults:
+  - data: null
+  - machine: null
+  - trainer: null
+  - sampler: variable_conseq
+  - /path@path
+  - override hydra/job_logging: rich # custom
+  - override hydra/hydra_logging: rich # custom
+  - _self_
+
+
+data.batch_size: 1
+data:
+  batch_size: 1
+  splitpath: ${path.datasets}/babelsync-clf-splits
+  correspondance_path: ${path.datasets}/babelclf.json

@@ -1,0 +1,20 @@
+{
+    "texts": [
+        "the person stand with arms down",
+        "transit from stand with arms down to lean down with legs cross over",
+        "lean down with legs cross over",
+        "transit from lean down with legs cross over to stand up",
+        "stand up",
+        "transit from stand up to stand with arms down",
+        "stand with arms down"
+    ],
+    "durations": [
+        8,
+        5,
+        51,
+        6,
+        20,
+        4,
+        8
+    ]
+}

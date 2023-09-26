@@ -1,0 +1,18 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+name: atom
+_target_: ems.model.textencoder.atom.DistilbertActorAgnosticEncoder
+
+latent_dim: ${model.latent_dim}
+vae: ${model.vae}
+
+ff_size: ${model.ff_size}
+num_layers: ${model.num_layers}
+num_head: ${model.num_head}
+droupout: ${model.droupout}
+activation: ${model.activation}
+textmodel: distilbert
+
+finetune: false
+modelpath: ${path.deps}/distilbert-base-uncased

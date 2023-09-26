@@ -1,0 +1,20 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+name: SMPLTransform
+ename: smpl
+
+_target_: ems.transforms.SMPLTransform
+
+normalization: true
+
+defaults:
+  - rots2rfeats: smplvelp
+  - rots2joints: smplh
+  - joints2jfeats: rifke
+
+rots2rfeats:
+  normalization: ${transforms.normalization}
+
+joints2jfeats:
+  normalization: ${transforms.normalization}

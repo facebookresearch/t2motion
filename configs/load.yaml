@@ -1,0 +1,29 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+
+# Global configurations shared between different modules
+experiment: baseline
+
+path: null
+seed: 1234
+
+logger_level: INFO
+
+# Composing nested config with default
+defaults:
+  - data: ???
+  - machine: server
+  - model: ems
+  - pose2joints: localxyz
+  - sampler: all_conseq
+  - trainer: base
+  - logger: none
+  - callback: base
+  - override hydra/job_logging: disabled
+  - override hydra/hydra_logging: disabled
+  - _self_

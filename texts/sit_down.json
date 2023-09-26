@@ -1,0 +1,14 @@
+{
+    "texts": [
+        "the person walk",
+        "sit down",
+        "stand up",
+        "walk"
+    ],
+    "durations": [
+        30,
+        60,
+        7,
+        33
+    ]
+}

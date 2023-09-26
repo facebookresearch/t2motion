@@ -1,0 +1,8 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+# path to additional modules
+deps: ${code_path:./deps}
+datasets: ${code_path:./datasets}
+code_dir: ${code_path:}
+working_dir: ${working_path:""}

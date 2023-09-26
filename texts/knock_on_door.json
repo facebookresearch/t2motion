@@ -1,0 +1,20 @@
+{
+    "texts": [
+        "the person walk forward",
+        "transit from walk forward to knock",
+        "knock",
+        "transit from knock to stand",
+        "stand",
+        "transit from stand to walk back",
+        "walk back"
+    ],
+    "durations": [
+        21,
+        4,
+        14,
+        10,
+        69,
+        16,
+        30
+    ]
+}
